@@ -48,6 +48,10 @@ function displayAddressBooksList(pageNumber) {
             var $prevButton = $('<a href="#" class="button">Previous Page</a>');
             var $nextButton = $('<a href="#" class="button">Next Page</a>');
             
+            if (addressBooks.length === 0){
+                $app.append("<p>No more addressbooks, please return to the previous page.</p>");
+            }
+            
             $app.append($prevButton);
             $app.append($nextButton);
             
@@ -56,10 +60,20 @@ function displayAddressBooksList(pageNumber) {
                     displayAddressBooksList(pageNumber-1);
                 });
             }
+            else {
+                $prevButton.toggleClass("disabled");
+            }
             
-            $nextButton.on("click",function(){
-                displayAddressBooksList(pageNumber+1);
-            });
+            if (addressBooks.length === 5){
+                $nextButton.on("click",function(){
+                    displayAddressBooksList(pageNumber+1);
+                });
+            }
+            else {
+                $nextButton.toggleClass("disabled");
+            }
+            
+
         }
     )
 }
