@@ -49,7 +49,7 @@ function displayAddressBooksList(pageNumber) {
             var $nextButton = $('<a href="#" class="button">Next Page</a>');
             
             if (addressBooks.length === 0){
-                $app.append("<p>No more addressbooks, please return to the previous page.</p>");
+                $app.append("<div>No more addressbooks, please return to the previous page.</div>");
             }
             
             $app.append($prevButton);
