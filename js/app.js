@@ -44,6 +44,22 @@ function displayAddressBooksList(pageNumber) {
                 var addressBookId = $(this).data('id');
                 displayAddressBook(addressBookId);
             });
+
+            var $prevButton = $('<a href="#" class="button">Previous Page</a>');
+            var $nextButton = $('<a href="#" class="button">Next Page</a>');
+            
+            $app.append($prevButton);
+            $app.append($nextButton);
+            
+            if(pageNumber>0){
+                $prevButton.on("click",function(){
+                    displayAddressBooksList(pageNumber-1);
+                });
+            }
+            
+            $nextButton.on("click",function(){
+                displayAddressBooksList(pageNumber+1);
+            });
         }
     )
 }
