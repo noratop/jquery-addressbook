@@ -25,7 +25,8 @@ function getEntries(addressBookId,pageNumber) {
 }
 
 function getEntry(entryId) {
-    // TODO..
+    var filter = '?filter={"include":["addresses","phones","emails"]}';
+    return $.getJSON(API_URL + '/Entries/'+entryId+filter);
 }
 // End data retrieval functions
 
@@ -81,6 +82,8 @@ function displayAddressBooksList(pageNumber) {
 
 
 function displayAddressBook(addressBookId,pageNumber,pageAb) {
+    if (!pageAb) pageAb = 0;
+    
     getEntries(addressBookId,pageNumber).then(
         function(entries) {
             
@@ -95,16 +98,16 @@ function displayAddressBook(addressBookId,pageNumber,pageAb) {
             $app.append('<h2>Entries List of the Address Book '+addressBookId+'</h2>');
             $app.append('<ul>');
             
-            console.log(entries);
+            //console.log(entries);
             
             entries.forEach(function(e) {
                 $app.find('ul').append('<li class = "list" data-id="' + e.id + '">'+ e.lastName + ' ' + e.firstName + '</li>');
             });
             
-            // $app.find('li').on('click', function() {
-            //     var addressBookId = $(this).data('id');
-            //     displayAddressBook(addressBookId);
-            // });
+            $app.find('li').on('click', function() {
+                var entryId = $(this).data('id');
+                displayEntry(entryId);
+            });
 
             if (entries.length === 0){
                 $app.append("<div>No more entries, please return to the previous page.</div>");
@@ -138,10 +141,87 @@ function displayAddressBook(addressBookId,pageNumber,pageAb) {
     )
 }
 
-function displayEntry() {
+function displayEntry(entryId) {
     
-}
-// End functions that display views
+    $app.html(''); // Clear the #app div
+    
+    getEntry(entryId).then(
+        function(entry) {
+
+            console.log(entry);
+            
+            var $backButton = $('<a href="#" class="button expand">Back to the Entries list</a>');
+            $app.append($backButton);
+            $backButton.on("click", function() {
+                displayAddressBook(entry.addressBookId,0);
+            });
+
+            var entryAddresses = [];
+            
+            entry.addresses.forEach(function(address){
+                
+                var currentAdd = [];
+                
+                var line = address.line1;
+                var line2 = address.line2;
+                if (line2) line += ", "+line2;
+                
+                currentAdd.push(
+                    address.type + ':',
+                    line,
+                    address.city,
+                    address.state,
+                    address.zip,
+                    address.country
+                );
+                
+                entryAddresses.push(currentAdd.join('<br/>'));
+            });
+            
+
+            var entryPhones = [];
+            
+            entry.phones.forEach(function(phone){
+                
+                var currentPh = [];
+                
+                currentPh.push(
+                    phone.type + ':',
+                    phone.phoneType,
+                    phone.phoneNumber
+                );
+                
+                entryAddresses.push(currentPh.join('<br/>'));
+            });
+            
+            var entryEmails = [];
+            
+            entry.emails.forEach(function(email){
+                
+                var currentEm = [];
+                
+                currentEm.push(
+                    email.type + ':',
+                    email.email
+                );
+                
+                entryEmails.push(currentEm.join('<br/>'));
+            });
+            
+            var $table = $('<table></table>');
+
+            $table.append('<tr><th>First Name</th><td>' + entry.firstName + '</td></tr>');
+            $table.append('<tr><th>Last Name</th><td>' + entry.lastName + '</td></tr>');
+            $table.append('<tr><th>Birthday</th><td>' + entry.birthday + '</td></tr>');
+            if (entryAddresses.length) $table.append('<tr><th>Addresses</th><td>' + entryAddresses.join('<br/><br/>') + '</td></tr>');
+            if (entryPhones.length) $table.append('<tr><th>Phones</th><td>' + entryPhones.join('<br/><br/>') + '</td></tr>');
+            if (entryEmails.length) $table.append('<tr><th>Emails</th><td>' + entryEmails.join('<br/><br/>') + '</td></tr>');
+
+
+            $app.append($table);
+        })
+    }
+    // End functions that display views
 
 
 // Start the app by displaying all the addressbooks
