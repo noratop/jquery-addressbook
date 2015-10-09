@@ -18,8 +18,10 @@ function getAddressBook(id) {
     return $.getJSON(API_URL + '/AddressBooks/' + id);
 }
 
-function getEntries(addressBookId) {
-    // TODO...
+function getEntries(addressBookId,pageNumber) {
+    var skipNb = pageNumber * 5 ;
+    var filter = '?filter={"order": "lastName ASC", "limit": 5, "skip": '+skipNb+'}';
+    return $.getJSON(API_URL + '/AddressBooks/'+addressBookId+'/entries'+filter);
 }
 
 function getEntry(entryId) {
@@ -42,15 +44,16 @@ function displayAddressBooksList(pageNumber) {
             
             $app.find('li').on('click', function() {
                 var addressBookId = $(this).data('id');
-                displayAddressBook(addressBookId);
+                console.log(addressBookId);
+                displayAddressBook(addressBookId,0);
             });
 
-            var $prevButton = $('<a href="#" class="button">Previous Page</a>');
-            var $nextButton = $('<a href="#" class="button">Next Page</a>');
-            
             if (addressBooks.length === 0){
                 $app.append("<div>No more addressbooks, please return to the previous page.</div>");
             }
+            
+            var $prevButton = $('<a href="#" class="button">Previous Page</a>');
+            var $nextButton = $('<a href="#" class="button">Next Page</a>');
             
             $app.append($prevButton);
             $app.append($nextButton);
@@ -72,14 +75,62 @@ function displayAddressBooksList(pageNumber) {
             else {
                 $nextButton.toggleClass("disabled");
             }
-            
-
         }
     )
 }
 
-function displayAddressBook(addressBookId) {
-    
+
+function displayAddressBook(addressBookId,pageNumber) {
+    getEntries(addressBookId,pageNumber).then(
+        function(entries) {
+            
+            $app.html(''); // Clear the #app div
+            $app.append('<h2>Entries List of the Address Book '+addressBookId+'</h2>');
+            $app.append('<ul>');
+            
+            console.log(entries);
+            
+            entries.forEach(function(e) {
+                $app.find('ul').append('<li class = "list" data-id="' + e.id + '">'+ e.lastName + ' ' + e.firstName + '</li>');
+            });
+            
+            // $app.find('li').on('click', function() {
+            //     var addressBookId = $(this).data('id');
+            //     displayAddressBook(addressBookId);
+            // });
+
+            if (entries.length === 0){
+                $app.append("<div>No more entries, please return to the previous page.</div>");
+            }
+            
+            var $backButton = $('<a href="#" class="button expand">Back to the Address Books list</a>');
+            var $prevButton = $('<a href="#" class="button">Previous Page</a>');
+            var $nextButton = $('<a href="#" class="button">Next Page</a>');
+            
+            $app.append($backButton);
+            $app.append($prevButton);
+            $app.append($nextButton);
+            
+            if(pageNumber>0){
+                $prevButton.on("click",function(){
+                    displayAddressBook(addressBookId,pageNumber-1);
+                });
+            }
+            else {
+                $prevButton.toggleClass("disabled");
+            }
+            
+            if (entries.length === 5){
+                $nextButton.on("click",function(){
+                    displayAddressBook(addressBookId,pageNumber+1);
+                });
+            }
+            else {
+                $nextButton.toggleClass("disabled");
+            }
+
+        }
+    )
 }
 
 function displayEntry() {
