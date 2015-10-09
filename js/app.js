@@ -45,7 +45,7 @@ function displayAddressBooksList(pageNumber) {
             $app.find('li').on('click', function() {
                 var addressBookId = $(this).data('id');
                 console.log(addressBookId);
-                displayAddressBook(addressBookId,0);
+                displayAddressBook(addressBookId,0,pageNumber);
             });
 
             if (addressBooks.length === 0){
@@ -80,11 +80,18 @@ function displayAddressBooksList(pageNumber) {
 }
 
 
-function displayAddressBook(addressBookId,pageNumber) {
+function displayAddressBook(addressBookId,pageNumber,pageAb) {
     getEntries(addressBookId,pageNumber).then(
         function(entries) {
             
             $app.html(''); // Clear the #app div
+            
+            var $backButton = $('<a href="#" class="button expand">Back to the Address Books list</a>');
+            $app.append($backButton);
+            $backButton.on("click",function(){
+                displayAddressBooksList(pageAb);
+            });
+
             $app.append('<h2>Entries List of the Address Book '+addressBookId+'</h2>');
             $app.append('<ul>');
             
@@ -103,11 +110,9 @@ function displayAddressBook(addressBookId,pageNumber) {
                 $app.append("<div>No more entries, please return to the previous page.</div>");
             }
             
-            var $backButton = $('<a href="#" class="button expand">Back to the Address Books list</a>');
             var $prevButton = $('<a href="#" class="button">Previous Page</a>');
             var $nextButton = $('<a href="#" class="button">Next Page</a>');
             
-            $app.append($backButton);
             $app.append($prevButton);
             $app.append($nextButton);
             
