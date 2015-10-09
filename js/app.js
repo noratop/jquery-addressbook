@@ -37,7 +37,7 @@ function displayAddressBooksList(pageNumber) {
             $app.append('<ul>');
             
             addressBooks.forEach(function(ab) {
-                $app.find('ul').append('<li data-id="' + ab.id + '">' + ab.name + '</li>');
+                $app.find('ul').append('<li class = "list" data-id="' + ab.id + '">' + ab.name + '</li>');
             });
             
             $app.find('li').on('click', function() {
