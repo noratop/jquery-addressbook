@@ -8,8 +8,10 @@ var API_URL = "https://loopback-rest-api-demo-ziad-saab.c9.io/api";
 var $app = $('#app');
 
 // Data retrieval functions
-function getAddressBooks() {
-    return $.getJSON(API_URL + '/AddressBooks');
+function getAddressBooks(pageNumber) {
+    var skipNb=pageNumber*5;
+    var filter='?filter={"order": "name ASC", "limit":5, "skip":'+skipNb+'}'
+    return $.getJSON(API_URL + '/AddressBooks'+filter);
 }
 
 function getAddressBook(id) {
@@ -26,8 +28,8 @@ function getEntry(entryId) {
 // End data retrieval functions
 
 // Functions that display things on the screen (views)
-function displayAddressBooksList() {
-    getAddressBooks().then(
+function displayAddressBooksList(pageNumber) {
+    getAddressBooks(pageNumber).then(
         function(addressBooks) {
             
             $app.html(''); // Clear the #app div
@@ -42,7 +44,39 @@ function displayAddressBooksList() {
                 var addressBookId = $(this).data('id');
                 displayAddressBook(addressBookId);
             });
+            
+            var $prevButton=$('<a href="#" class="button">Previous Page</a>');
+            var $nextButton=$('<a href="#" class="button">Next Page</a>');
+            
+            if(addressBooks.length===0){
+                $app.append('<div>There is no more address books to display.</div>');
+                $app.append('<div>Please go to the previous page.</div>');
+            }
+            $app.append($prevButton);
+            $app.append($nextButton);
+            
+            // $app.append('<ul class="button-group radius"><li><a href="#" class="button">Previous Page</a></li><li><a href="#" class="button">Next Page</a></li></ul>');
+            
+            if(pageNumber>0){
+                $prevButton.on("click", function(){
+                    displayAddressBooksList(pageNumber-1)
+                })
+            }
+            else{
+                $prevButton.toggleClass("disabled");
+            }
+            
+            if(addressBooks.length===5){
+                $nextButton.on("click", function(){
+                    displayAddressBooksList(pageNumber+1)
+                })
+            }
+            else{
+                $nextButton.toggleClass("disabled");
+            }
+            
         }
+        
     )
 }
 
@@ -57,4 +91,9 @@ function displayEntry() {
 
 
 // Start the app by displaying all the addressbooks
-displayAddressBooksList();
+var pageNumber=0;
+
+displayAddressBooksList(pageNumber);
+
+
+
