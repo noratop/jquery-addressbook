@@ -8,8 +8,10 @@ var API_URL = "https://loopback-rest-api-demo-ziad-saab.c9.io/api";
 var $app = $('#app');
 
 // Data retrieval functions
-function getAddressBooks() {
-    return $.getJSON(API_URL + '/AddressBooks');
+function getAddressBooks(pageNumber) {
+    var skipNb = pageNumber * 5 ;
+    var filter = '?filter={"order": "name ASC", "limit": 5, "skip": '+skipNb+'}';
+    return $.getJSON(API_URL + '/AddressBooks'+filter);
 }
 
 function getAddressBook(id) {
@@ -26,8 +28,8 @@ function getEntry(entryId) {
 // End data retrieval functions
 
 // Functions that display things on the screen (views)
-function displayAddressBooksList() {
-    getAddressBooks().then(
+function displayAddressBooksList(pageNumber) {
+    getAddressBooks(pageNumber).then(
         function(addressBooks) {
             
             $app.html(''); // Clear the #app div
@@ -57,4 +59,4 @@ function displayEntry() {
 
 
 // Start the app by displaying all the addressbooks
-displayAddressBooksList();
+displayAddressBooksList(0);
