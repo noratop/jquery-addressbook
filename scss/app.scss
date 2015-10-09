@@ -39,25 +39,30 @@
 //   "foundation/components/offcanvas",
 //   "foundation/components/visibility";
 
-h1 {
-    margin: 20px;
+body{
+    margin: 0 10px;
+    text-align: center;
 }
+
 
 #app {
-
-    padding: 20px;
     
     a.button {
-    margin-right: 20px;
-    margin-top: 20px;
-    width:170px;
-    border-radius: 10px;
+        margin: 10px;
+        width: 170px;
+        border-radius: 10px;
     }
-
     ul li.list{
-        //color : red;
         cursor: pointer;
+        list-style-type: none;
+        border: 1px solid navy;
+        padding: 0 1em;
+        border-radius: 10px;
+        margin-top: 2px;
     }
-    
+    ul{
+        text-align: center;
+        display: table;
+        margin: 20px auto;
+    }
 }
-
