@@ -52,19 +52,24 @@ body{
         width: 170px;
         border-radius: 10px;
     }
-    ul li.list{
-        cursor: pointer;
-        list-style-type: none;
-        border: 1px solid navy;
-        padding: 0 1em;
-        border-radius: 10px;
-        margin-top: 2px;
-    }
-    ul{
+    
+    ul {
         text-align: center;
         display: table;
         margin: 20px auto;
+        list-style-type: none;
+        
+        li.list{
+            cursor: pointer;
+            list-style-type: none;
+            border: 1px solid navy;
+            padding: 0 1em;
+            border-radius: 10px;
+            margin-top: 2px;
+        }
+        
     }
+
     
     table {
         margin: 20px auto;
