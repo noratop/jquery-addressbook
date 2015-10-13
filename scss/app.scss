@@ -74,4 +74,36 @@ body{
     table {
         margin: 20px auto;
     }
+    
+    table.entry {
+        
+        input {
+            margin: 0;
+        }
+        
+        tr.view>td.edit {
+            display: none;
+        }
+            
+        tr.edit{
+
+            padding:0;
+
+            >td.view {
+                display: none;
+            }
+            
+            >td.edit {
+                padding:0;
+            }
+            
+            input {
+                margin: 0;
+                border:0;
+                outline: 0;
+            } 
+        }
+    }
+    
+
 }

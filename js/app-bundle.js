@@ -204,85 +204,21 @@
 	                displayAddressBook(entry.addressBookId, 0);
 	            });
 
-
 	            var entryTemplate = _.template( $('#entry-template').html() );
-	            console.log(entryTemplate);
 	            var entryTable = entryTemplate(entry);
 	            $app.append(entryTable);
-	            
 
-	// //////////////////////////////////////////////
-
-	//             var entryPhones = [];
-
-	//             entry.phones.forEach(function(phone) {
-
-	//                 var currentPh = [];
-	//                 currentPh.push(
-	//                     phone.type + ':',
-	//                     phone.phoneType,
-	//                     phone.phoneNumber
-	//                 );
-
-	//                 entryPhones.push(currentPh.join('<br/>'));
-	//             });
-
-	//             var entryEmails = [];
-
-	//             entry.emails.forEach(function(email) {
-
-	//                 var currentEm = [];
-
-	//                 currentEm.push(
-	//                     email.type + ':',
-	//                     email.email
-	//                 );
-
-	//                 entryEmails.push(currentEm.join('<br/>'));
-	//             });
-
-	//             var $table = $('<table></table>');
-
-	//             $table.append('<tr><th>First Name</th><td>' + entry.firstName + '</td></tr>');
-	//             $table.append('<tr><th>Last Name</th><td>' + entry.lastName + '</td></tr>');
-	//             $table.append('<tr><th>Birthday</th><td>' + entry.birthday + '</td></tr>');
-
-	//             if (entry.addresses.length) {
-	//                 $table.append('<tr><th>Addresses</th><td class="address"></td></tr>');
-	                
-	//                 var $addressRow = $('td.address');
-
-	//                 entry.addresses.forEach(function(address) {
-
-	//                     var $p = $('<p></p>');
-	                    
-	//                     var currentAdd = [];
-
-	//                     var line = address.line1;
-	//                     var line2 = address.line2;
-	//                     if (line2) line += ", " + line2;
-
-	//                     currentAdd.push(
-	//                         address.type + ':',
-	//                         line,
-	//                         address.city,
-	//                         address.state,
-	//                         address.zip,
-	//                         address.country
-	//                     );
-	                    
-	//                     $p.append(currentAdd.join('<br/>'));
-	//                     $addressRow.append($p);
-	//                 });
-	//             }
-	            
-	//             if (entryPhones.length) $table.append('<tr><th>Phones</th><td>' + entryPhones.join('<br/><br/>') + '</td></tr>');
-	//             if (entryEmails.length) $table.append('<tr><th>Emails</th><td>' + entryEmails.join('<br/><br/>') + '</td></tr>');
-
-
-	//             $app.append($table);
-	        })
+	            $app.find('i.fi-pencil').on("click", function() {
+	                var tr = $(this).parent().parent();
+	                //console.log(tr);
+	                tr.toggleClass("edit");
+	                tr.toggleClass("view");
+	            })
+	        }
+	    )
 	}
+
+
 	// End functions that display views
 
 

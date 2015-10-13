@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>The Address Book</title>
     <link rel="stylesheet" href="css/app.css" />
+    <link rel="stylesheet" href="css/foundation-icons/foundation-icons.css" />
     <script src="bower_components/modernizr/modernizr.js"></script>
   </head>
   <body>
@@ -18,8 +19,8 @@
     <script src="js/app-bundle.js"></script>
     
     <script type="text/template" id="entry-template">
-      <table>
-        <tr><th>First Name</th><td><%=firstName %></td></tr>
+      <table class = "entry">
+        <tr class="view"><th>First Name</th><td class="view"><%=firstName %></td><td class="edit"><input type="text" id="firstName" placeholder=<%=firstName %>  /></td><td><i class="fi-pencil"></i></td></tr>
         <tr><th>Last Name</th><td><%=lastName %></td></tr>
         <% if (typeof birthday !== "undefined") { %>
           <tr><th>Birthday</th><td><%=birthday.slice(0,10) %></td></tr>
@@ -27,12 +28,12 @@
         <% for (var i = 0; i < addresses.length; i++) { %>
           <tr><th><%= addresses[i].type %> Address</th>
             <td>
-              <%= addresses[i].line1 %></br>
-              <% if (typeof line2 !== "undefined") { %> <br><%= addresses[i].line2 %></br><% } %>
-              <%= addresses[i].city %></br>
-              <%= addresses[i].state %></br>
-              <%= addresses[i].zip %></br>
-              <%= addresses[i].country %></br>
+              <%= addresses[i].line1 %><br>
+              <% if (typeof line2 !== "undefined") { %> <%= addresses[i].line2 %><br><% } %>
+              <%= addresses[i].city %><br>
+              <%= addresses[i].state %><br>
+              <%= addresses[i].zip %><br>
+              <%= addresses[i].country %><br>
             </td>
           </tr>
         <% } %>
@@ -53,7 +54,6 @@
         <% } %>
       </table>
     </script>
-    
     
   </body>
 </html>
