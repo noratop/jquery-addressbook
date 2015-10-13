@@ -9,6 +9,8 @@ var _ = require('underscore');
 
 // Functions that display things on the screen (views)
 function displayAddressBooksList(pageNumber) {
+    pageNumber = +pageNumber || 0;
+    
     data.getAddressBooks(pageNumber).then(
         function(addressBooks) {
 
@@ -17,40 +19,30 @@ function displayAddressBooksList(pageNumber) {
             $app.append('<ul>');
 
             addressBooks.forEach(function(ab) {
-                $app.find('ul').append('<li class = "list" data-id="' + ab.id + '">' + ab.name + '</li>');
+                $app.find('ul').append('<li><a href="#/addressbooks/' + ab.id + '">' +ab.name + '</a></li>');
             });
 
-            $app.find('li').on('click', function() {
-                var addressBookId = $(this).data('id');
-                console.log(addressBookId);
-                displayAddressBook(addressBookId, 0, pageNumber);
-            });
+            // $app.find('li').on('click', function() {
+            //     var addressBookId = $(this).data('id');
+            //     console.log(addressBookId);
+            //     displayAddressBook(addressBookId, 0, pageNumber);
+            // });
 
             if (addressBooks.length === 0) {
                 $app.append("<div>No more addressbooks, please return to the previous page.</div>");
             }
 
-            var $prevButton = $('<a href="#" class="button">Previous Page</a>');
-            var $nextButton = $('<a href="#" class="button">Next Page</a>');
+            var $prevButton = $('<a class="button" href="#/addressbooks/page' + (pageNumber - 1) + '">&lt; prev</a>');
+            var $nextButton = $('<a class="button" href="#/addressbooks/page' + (pageNumber + 1) + '">next &gt;</a>');
 
             $app.append($prevButton);
             $app.append($nextButton);
 
-            if (pageNumber > 0) {
-                $prevButton.on("click", function() {
-                    displayAddressBooksList(pageNumber - 1);
-                });
-            }
-            else {
+            if (pageNumber === 0) {
                 $prevButton.toggleClass("disabled");
             }
 
-            if (addressBooks.length === 5) {
-                $nextButton.on("click", function() {
-                    displayAddressBooksList(pageNumber + 1);
-                });
-            }
-            else {
+            if (addressBooks.length < 5) {
                 $nextButton.toggleClass("disabled");
             }
         }
@@ -59,7 +51,9 @@ function displayAddressBooksList(pageNumber) {
 
 
 function displayAddressBook(addressBookId, pageNumber, pageAb) {
-    if (!pageAb) pageAb = 0;
+    pageAb = +pageAb || 0;
+    pageNumber = +pageNumber || 0;
+    
 
     data.getEntries(addressBookId, pageNumber).then(
         function(entries) {
