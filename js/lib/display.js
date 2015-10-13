@@ -1,5 +1,5 @@
 // Import data get functions
-var data = require("./lib/data");
+var data = require("./data");
 
 // Get a reference to the <div id="app">. This is where we will output our stuff
 var $app = $('#app');
@@ -133,7 +133,8 @@ function displayEntry(entryId) {
             });
 
             var entryTemplate = _.template( $('#entry-template').html() );
-            var entryTable = entryTemplate(entry);
+            var entryTable = entryTemplate({entry: entry});
+            
             $app.append(entryTable);
 
             $app.find('i.fi-pencil').on("click", function() {
@@ -146,5 +147,10 @@ function displayEntry(entryId) {
     )
 }
 
-
 // End functions that display views
+
+module.exports = {
+    displayAddressBooksList: displayAddressBooksList,
+    displayAddressBook: displayAddressBook,
+    displayEntry: displayEntry
+};
