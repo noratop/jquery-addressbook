@@ -8,6 +8,10 @@ var $app = $('#app');
 // Get underscore library
 var _ = require('underscore');
 
+function redirectToAddressBooks() {
+    displayAddressBooksList();
+}
+
 // Functions that display things on the screen (views)
 function displayAddressBooksList(pageNumber) {
     pageNumber = +pageNumber || 0;
@@ -158,5 +162,6 @@ function displayEntry(entryId) {
 module.exports = {
     displayAddressBooksList: displayAddressBooksList,
     displayAddressBook: displayAddressBook,
-    displayEntry: displayEntry
+    displayEntry: displayEntry,
+    redirectToAddressBooks: redirectToAddressBooks
 };

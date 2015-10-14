@@ -54,11 +54,13 @@
 
 	var AppRouter = Backbone.Router.extend({
 	    routes: {
+	        '': 'redirectToAddressBooks',
 	        'addressbooks(/page:pageNum)': 'showAddressBooks',
 	        'addressbooks/:id(/page:pageNum)': 'showAddressBook',
 	        'entry/:id': 'showEntry'
 	    },
 	    
+	    redirectToAddressBooks: display.redirectToAddressBooks,
 	    showAddressBooks: display.displayAddressBooksList,
 	    showAddressBook: display.displayAddressBook,
 	    showEntry: display.displayEntry
@@ -80,6 +82,10 @@
 
 	// Get underscore library
 	var _ = __webpack_require__(4);
+
+	function redirectToAddressBooks() {
+	    displayAddressBooksList();
+	}
 
 	// Functions that display things on the screen (views)
 	function displayAddressBooksList(pageNumber) {
@@ -231,7 +237,8 @@
 	module.exports = {
 	    displayAddressBooksList: displayAddressBooksList,
 	    displayAddressBook: displayAddressBook,
-	    displayEntry: displayEntry
+	    displayEntry: displayEntry,
+	    redirectToAddressBooks: redirectToAddressBooks
 	};
 
 /***/ },
