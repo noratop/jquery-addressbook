@@ -1,5 +1,6 @@
 // Import data get functions
 var data = require("./data");
+var view = require("./views")
 
 // Get a reference to the <div id="app">. This is where we will output our stuff
 var $app = $('#app');
@@ -16,17 +17,28 @@ function displayAddressBooksList(pageNumber) {
 
             $app.html(''); // Clear the #app div
             $app.append('<h2>Address Books List</h2>');
-            $app.append('<ul>');
-
-            addressBooks.forEach(function(ab) {
-                $app.find('ul').append('<li><a href="#/addressbooks/' + ab.get("id") + '">' +ab.get("name") + '</a></li>');
+            
+            
+            var addressBookListView = new view.AddressBookListView({
+                model: addressBooks
             });
+            addressBookListView.render();
+            $app.append(addressBookListView.$el);
 
-            // $app.find('li').on('click', function() {
-            //     var addressBookId = $(this).data('id');
-            //     console.log(addressBookId);
-            //     displayAddressBook(addressBookId, 0, pageNumber);
+            
+            
+            
+            // $app.append('<ul>');
+
+            // addressBooks.forEach(function(ab) {
+            //     $app.find('ul').append('<li><a href="#/addressbooks/' + ab.get("id") + '">' +ab.get("name") + '</a></li>');
             // });
+
+            // // $app.find('li').on('click', function() {
+            // //     var addressBookId = $(this).data('id');
+            // //     console.log(addressBookId);
+            // //     displayAddressBook(addressBookId, 0, pageNumber);
+            // // });
 
             if (addressBooks.length === 0) {
                 $app.append("<div>No more addressbooks, please return to the previous page.</div>");

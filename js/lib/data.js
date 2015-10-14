@@ -88,5 +88,5 @@ module.exports = {
     getAddressBooks: getAddressBooks,
     getAddressBookEntries: getAddressBookEntries,
     getEntries: getEntries,
-    getEntry: getEntry
+    getEntry: getEntry,
 };

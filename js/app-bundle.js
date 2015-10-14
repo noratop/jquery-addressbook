@@ -73,6 +73,7 @@
 
 	// Import data get functions
 	var data = __webpack_require__(2);
+	var view = __webpack_require__(6)
 
 	// Get a reference to the <div id="app">. This is where we will output our stuff
 	var $app = $('#app');
@@ -89,17 +90,28 @@
 
 	            $app.html(''); // Clear the #app div
 	            $app.append('<h2>Address Books List</h2>');
-	            $app.append('<ul>');
-
-	            addressBooks.forEach(function(ab) {
-	                $app.find('ul').append('<li><a href="#/addressbooks/' + ab.get("id") + '">' +ab.get("name") + '</a></li>');
+	            
+	            
+	            var addressBookListView = new view.AddressBookListView({
+	                model: addressBooks
 	            });
+	            addressBookListView.render();
+	            $app.append(addressBookListView.$el);
 
-	            // $app.find('li').on('click', function() {
-	            //     var addressBookId = $(this).data('id');
-	            //     console.log(addressBookId);
-	            //     displayAddressBook(addressBookId, 0, pageNumber);
+	            
+	            
+	            
+	            // $app.append('<ul>');
+
+	            // addressBooks.forEach(function(ab) {
+	            //     $app.find('ul').append('<li><a href="#/addressbooks/' + ab.get("id") + '">' +ab.get("name") + '</a></li>');
 	            // });
+
+	            // // $app.find('li').on('click', function() {
+	            // //     var addressBookId = $(this).data('id');
+	            // //     console.log(addressBookId);
+	            // //     displayAddressBook(addressBookId, 0, pageNumber);
+	            // // });
 
 	            if (addressBooks.length === 0) {
 	                $app.append("<div>No more addressbooks, please return to the previous page.</div>");
@@ -316,7 +328,7 @@
 	    getAddressBooks: getAddressBooks,
 	    getAddressBookEntries: getAddressBookEntries,
 	    getEntries: getEntries,
-	    getEntry: getEntry
+	    getEntry: getEntry,
 	};
 
 /***/ },
@@ -12989,6 +13001,64 @@
 
 	}));
 
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Backbone = __webpack_require__(3);
+	var _ = __webpack_require__(4);
+
+	//var entryTemplateText = require('raw!./templates/entry-view-template.ejs');
+	// var entryTemplateText = $('#entry-template').html();
+
+	var abListTemplateText = __webpack_require__(7);
+
+	var AddressBookListView = Backbone.View.extend({
+	    template: _.template( abListTemplateText ),
+	    model: null,
+	    tagName: 'div',
+	    render: function() {
+	        this.$el.html( this.template({abList: this.model}) );
+	    }
+	});
+
+
+	// var EntryView = Backbone.View.extend({
+	//     template: _.template( entryTemplateText ),
+	//     model: null,
+	//     tagName: 'div',
+	//     events: {
+	//         'click .editable': 'editSomething',
+	//         'keypress .edit-input': 'editCompleted'
+	//     },
+	//     editSomething: function(evt) {
+	//         var $this = $(evt.target);
+	//         var origText = $this.text();
+	//         $this.replaceWith('<input class="edit-input" type="text" value="' + origText + '">');
+	//     },
+	//     editCompleted: function(evt) {
+	//         var $this = $(evt.target);
+	//         if (evt.keyCode === 13) {
+	//             alert($this.val());
+	//         }
+	//     },
+	//     render: function() {
+	//         this.$el.html( this.template({entry: this.model}) );
+	//     }
+	// });
+
+
+	module.exports = {
+	    // EntryView:EntryView,
+	    AddressBookListView:AddressBookListView
+	}
+
+/***/ },
+/* 7 */
+/***/ function(module, exports) {
+
+	module.exports = "<ul>\n      <% abList.forEach(function(ab) { %>\n            <li><a href=\"#/addressbooks/<%=ab.get('id')%>\"><%= ab.get('name')%></a></li>\n      <% }) %>\n</ul>"
 
 /***/ }
 /******/ ]);
