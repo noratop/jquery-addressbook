@@ -19,7 +19,7 @@ function displayAddressBooksList(pageNumber) {
             $app.append('<ul>');
 
             addressBooks.forEach(function(ab) {
-                $app.find('ul').append('<li><a href="#/addressbooks/' + ab.id + '">' +ab.name + '</a></li>');
+                $app.find('ul').append('<li><a href="#/addressbooks/' + ab.get("id") + '">' +ab.get("name") + '</a></li>');
             });
 
             // $app.find('li').on('click', function() {
@@ -118,13 +118,13 @@ function displayEntry(entryId) {
             
             $app.html(''); // Clear the #app div
 
-            // console.log(entry);
+            // // console.log(entry);
 
-            var $backButton = $('<a href="#" class="button expand">Back to the Entries list</a>');
-            $app.append($backButton);
-            $backButton.on("click", function() {
-                displayAddressBook(entry.addressBookId, 0);
-            });
+            // var $backButton = $('<a href="#" class="button expand">Back to the Entries list</a>');
+            // $app.append($backButton);
+            // $backButton.on("click", function() {
+            //     displayAddressBook(entry.addressBookId, 0);
+            // });
 
             var entryTemplate = _.template( $('#entry-template').html() );
             var entryTable = entryTemplate({entry: entry});

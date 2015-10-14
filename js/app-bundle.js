@@ -92,7 +92,7 @@
 	            $app.append('<ul>');
 
 	            addressBooks.forEach(function(ab) {
-	                $app.find('ul').append('<li><a href="#/addressbooks/' + ab.id + '">' +ab.name + '</a></li>');
+	                $app.find('ul').append('<li><a href="#/addressbooks/' + ab.get("id") + '">' +ab.get("name") + '</a></li>');
 	            });
 
 	            // $app.find('li').on('click', function() {
@@ -191,13 +191,13 @@
 	            
 	            $app.html(''); // Clear the #app div
 
-	            // console.log(entry);
+	            // // console.log(entry);
 
-	            var $backButton = $('<a href="#" class="button expand">Back to the Entries list</a>');
-	            $app.append($backButton);
-	            $backButton.on("click", function() {
-	                displayAddressBook(entry.addressBookId, 0);
-	            });
+	            // var $backButton = $('<a href="#" class="button expand">Back to the Entries list</a>');
+	            // $app.append($backButton);
+	            // $backButton.on("click", function() {
+	            //     displayAddressBook(entry.addressBookId, 0);
+	            // });
 
 	            var entryTemplate = _.template( $('#entry-template').html() );
 	            var entryTable = entryTemplate({entry: entry});
@@ -232,16 +232,42 @@
 	// Import Backbone
 	var Backbone = __webpack_require__(3);
 
+
 	// Data retrieval functions
+
+	// Backbone model for an addressbook
+	var AddressBookModel = Backbone.Model.extend({
+	    urlRoot: API_URL + '/AddressBooks'
+	});
+
+	var AddressBookCollection = Backbone.Collection.extend({
+	    model: AddressBookModel,
+	    url: function() {
+	        return API_URL + '/AddressBooks/';
+	    }
+	});
+
+
 	function getAddressBooks(pageNumber) {
 	    var skipNb = pageNumber * 5;
-	    var filter = '?filter={"order": "name ASC", "limit": 5, "skip": ' + skipNb + '}';
-	    return $.getJSON(API_URL + '/AddressBooks' + filter);
+	    // var filter = '?filter={"order": "name ASC", "limit": 5, "skip": ' + skipNb + '}';
+	    // return $.getJSON(API_URL + '/AddressBooks' + filter);
+	    
+	    var filter = {"order": "name ASC", "limit": 5, "skip": skipNb};
+	    
+	    var addressBooklist = new AddressBookCollection();
+	    return addressBooklist.fetch({data: {filter: JSON.stringify(filter)}}).then(
+	        function() {
+	            return addressBooklist;
+	        }
+	    );
 	}
 
 	function getAddressBookEntries(id) {
 	    return $.getJSON(API_URL + '/AddressBooks/' + id);
 	}
+
+
 
 	function getEntries(addressBookId, pageNumber) {
 	    var skipNb = pageNumber * 5;
@@ -250,10 +276,7 @@
 	}
 
 
-
-
-
-	// Backbone model for entry
+	// Backbone model for an entry
 	var EntryModel = Backbone.Model.extend({
 	    urlRoot: API_URL + '/Entries',
 	    getFullName: function() {
