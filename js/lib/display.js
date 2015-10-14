@@ -160,17 +160,25 @@ function displayEntry(entryId) {
             //     displayAddressBook(entry.addressBookId, 0);
             // });
 
-            var entryTemplate = _.template( $('#entry-template').html() );
-            var entryTable = entryTemplate({entry: entry});
+            // var entryTemplate = _.template( $('#entry-template').html() );
+            // var entryTable = entryTemplate({entry: entry});
             
-            $app.append(entryTable);
+            // $app.append(entryTable);
 
-            $app.find('i.fi-pencil').on("click", function() {
-                var tr = $(this).parent().parent();
-                //console.log(tr);
-                tr.toggleClass("edit");
-                tr.toggleClass("view");
-            })
+            var myEntryView = new view.EntryView({
+                model: entry
+            });
+            myEntryView.render();
+            console.log(myEntryView.$el);
+            $app.append(myEntryView.$el);
+            
+
+            // $app.find('i.fi-pencil').on("click", function() {
+            //     var tr = $(this).parent().parent();
+            //     //console.log(tr);
+            //     tr.toggleClass("edit");
+            //     tr.toggleClass("view");
+            // })
         }
     )
 }

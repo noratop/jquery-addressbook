@@ -1,0 +1,36 @@
+    <script type="text/template" id="entry-template">
+      <table class = "entry">
+        <tr class="view"><th>First Name</th><td class="view"><%=entry.get("firstName") %></td><td class="edit"><input type="text" id="firstName" placeholder=<%=entry.get("firstName") %>  /></td><td><i class="fi-pencil"></i></td></tr>
+        <tr><th>Last Name</th><td><%=entry.get("lastName") %></td></tr>
+        <% if (typeof entry.get("birthday") !== "undefined") { %>
+          <tr><th>Birthday</th><td><%=entry.get("birthday").slice(0,10) %></td></tr>
+        <% } %>
+        <% for (var i = 0; i < entry.get("addresses").length; i++) { %>
+          <tr><th><%= entry.get("addresses")[i].type %> Address</th>
+            <td>
+              <%= entry.get("addresses")[i].line1 %><br>
+              <% if (typeof entry.get("line2") !== "undefined") { %> <%= entry.get("addresses")[i].line2 %><br><% } %>
+              <%= entry.get("addresses")[i].city %><br>
+              <%= entry.get("addresses")[i].state %><br>
+              <%= entry.get("addresses")[i].zip %><br>
+              <%= entry.get("addresses")[i].country %><br>
+            </td>
+          </tr>
+        <% } %>
+        <% for (var i = 0; i < entry.get("phones").length; i++) { %>
+          <tr><th><%= entry.get("phones")[i].type %> Phone</th>
+            <td>
+              <%= entry.get("phones")[i].phoneType %></br>
+              <%= entry.get("phones")[i].phoneNumber %></br>
+            </td>
+          </tr>
+        <% } %>
+        <% for (var i = 0; i < entry.get("emails").length; i++) { %>
+          <tr><th><%= entry.get("emails")[i].type %> Email</th>
+            <td>
+              <%= entry.get("emails")[i].email %></br>
+            </td>
+          </tr>
+        <% } %>
+      </table>
+    </script>

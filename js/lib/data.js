@@ -68,7 +68,7 @@ function getEntries(addressBookId, pageNumber) {
 var EntryModel = Backbone.Model.extend({
     urlRoot: API_URL + '/Entries',
     getFullName: function() {
-        return this.get('lastName') + ' ' + this.get('firstName');
+        return this.get('firstName') + ' ' + this.get('lastName');
     }
 });
 

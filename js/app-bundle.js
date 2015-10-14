@@ -235,17 +235,25 @@
 	            //     displayAddressBook(entry.addressBookId, 0);
 	            // });
 
-	            var entryTemplate = _.template( $('#entry-template').html() );
-	            var entryTable = entryTemplate({entry: entry});
+	            // var entryTemplate = _.template( $('#entry-template').html() );
+	            // var entryTable = entryTemplate({entry: entry});
 	            
-	            $app.append(entryTable);
+	            // $app.append(entryTable);
 
-	            $app.find('i.fi-pencil').on("click", function() {
-	                var tr = $(this).parent().parent();
-	                //console.log(tr);
-	                tr.toggleClass("edit");
-	                tr.toggleClass("view");
-	            })
+	            var myEntryView = new view.EntryView({
+	                model: entry
+	            });
+	            myEntryView.render();
+	            console.log(myEntryView.$el);
+	            $app.append(myEntryView.$el);
+	            
+
+	            // $app.find('i.fi-pencil').on("click", function() {
+	            //     var tr = $(this).parent().parent();
+	            //     //console.log(tr);
+	            //     tr.toggleClass("edit");
+	            //     tr.toggleClass("view");
+	            // })
 	        }
 	    )
 	}
@@ -333,7 +341,7 @@
 	var EntryModel = Backbone.Model.extend({
 	    urlRoot: API_URL + '/Entries',
 	    getFullName: function() {
-	        return this.get('lastName') + ' ' + this.get('firstName');
+	        return this.get('firstName') + ' ' + this.get('lastName');
 	    }
 	});
 
@@ -13050,11 +13058,11 @@
 	var Backbone = __webpack_require__(3);
 	var _ = __webpack_require__(4);
 
-	//var entryTemplateText = require('raw!./templates/entry-view-template.ejs');
+	var entryTemplateText = __webpack_require__(7);
 	// var entryTemplateText = $('#entry-template').html();
 
-	var abListTemplateText = __webpack_require__(7);
-	var entriestemplateText = __webpack_require__(8);
+	var abListTemplateText = __webpack_require__(8);
+	var entriestemplateText = __webpack_require__(9);
 
 	var AddressBookListView = Backbone.View.extend({
 	    template: _.template( abListTemplateText ),
@@ -13076,33 +13084,48 @@
 	});
 
 
-	// var EntryView = Backbone.View.extend({
-	//     template: _.template( entryTemplateText ),
-	//     model: null,
-	//     tagName: 'div',
-	//     events: {
-	//         'click .editable': 'editSomething',
-	//         'keypress .edit-input': 'editCompleted'
-	//     },
-	//     editSomething: function(evt) {
-	//         var $this = $(evt.target);
-	//         var origText = $this.text();
-	//         $this.replaceWith('<input class="edit-input" type="text" value="' + origText + '">');
-	//     },
-	//     editCompleted: function(evt) {
-	//         var $this = $(evt.target);
-	//         if (evt.keyCode === 13) {
-	//             alert($this.val());
-	//         }
-	//     },
-	//     render: function() {
-	//         this.$el.html( this.template({entry: this.model}) );
-	//     }
-	// });
+	var EntryView = Backbone.View.extend({
+	    template: _.template( entryTemplateText ),
+	    model: null,
+	    tagName: 'div',
+	    events: {
+	        'click .fi-pencil': 'editSomething',
+	        'keypress .edit-input': 'editCompleted'
+	    },
+	    editSomething: function(evt) {
+	        var $this = $(evt.target).parent();
+	        var origText = $this.text();
+	        var attribut = $this.attr("name");
+	        $this.replaceWith('<input class="edit-input" name='+attribut+' type="text" value="' + origText + '">');
+	    },
+	    editCompleted: function(evt) {
+	        var $this = $(evt.target);
+	        var attribut = $this.attr("name");
+	        if (evt.keyCode === 13) {
+	            //console.log(this);
+	            var inputValue = $this.val();
+	            var view = this;
+	            this.model.set(attribut, inputValue);
+	            this.model.save(null, {attrs: this.model.changedAttributes()}).then(
+	                function(successResult) {
+	                    //alert('model has been saved');
+	                    console.log(successResult);
+	                    view.render();
+	                },
+	                function(errorResult) {
+	                    
+	                }
+	            );
+	        }
+	    },
+	    render: function() {
+	        this.$el.html( this.template({entry: this.model}) );
+	    }
+	});
 
 
 	module.exports = {
-	    // EntryView:EntryView,
+	    EntryView:EntryView,
 	    AddressBookListView:AddressBookListView,
 	    EntriesView:EntriesView
 	}
@@ -13111,13 +13134,19 @@
 /* 7 */
 /***/ function(module, exports) {
 
-	module.exports = "<ul>\n      <% abList.forEach(function(ab) { console.log(ab);%>\n            <li><a href=\"#/addressbooks/<%=ab.get('id')%>\"><%= ab.get('name')%></a></li>\n      <% }) %>\n</ul>"
+	module.exports = "<table>\n    <tr><th>First Name</th><td><div class=\"editable\" name=\"firstName\"><%=entry.get('firstName') %><i class=\"fi-pencil\"></i></div></td></tr>\n    <tr><th>Last Name</th><td><div class=\"editable\"><%=entry.get('lastName') %></div></td></tr>\n    <tr><th>Full Name</th><td><%=entry.getFullName()%></td></tr>\n    <% if (typeof entry.get('birthday') !== \"undefined\") { %>\n      <tr><th>Birthday</th><td><%=entry.get('birthday') %></td></tr>\n    <% } %>\n    <% for (var i = 0; i < entry.get('emails').length; i++) { %>\n      <tr><th>Email # <%=i+1 %></th><td><%= entry.get('emails')[i].email %> (<%= entry.get('emails')[i].type %>)</td></tr>\n    <% } %>\n</table>"
 
 /***/ },
 /* 8 */
 /***/ function(module, exports) {
 
-	module.exports = "<ul>\n      <% entriesList.forEach(function(e) { console.log(e) %>\n            <li><a href=\"#entry/<%=e.get('id')%>\"><%= e.get('lastName')%> <%=e.get('firstName')%></a></li>\n      <% }) %>\n</ul>"
+	module.exports = "<ul>\n      <% abList.forEach(function(ab) { %>\n            <li><a href=\"#/addressbooks/<%=ab.get('id')%>\"><%= ab.get('name')%></a></li>\n      <% }) %>\n</ul>"
+
+/***/ },
+/* 9 */
+/***/ function(module, exports) {
+
+	module.exports = "<ul>\n      <% entriesList.forEach(function(e) { %>\n            <li><a href=\"#entry/<%=e.get('id')%>\"><%= e.get('lastName')%> <%=e.get('firstName')%></a></li>\n      <% }) %>\n</ul>"
 
 /***/ }
 /******/ ]);
