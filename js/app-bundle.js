@@ -182,8 +182,8 @@
 	                $app.append("<div>No more entries, please return to the previous page.</div>");
 	            }
 
-	            var $prevButton = $('<a class="button" href="#/addressbooks/addressBookId/page' + (pageNumber - 1) + '">&lt; prev</a>');
-	            var $nextButton = $('<a class="button" href="#/addressbooks/addressBookId/page' + (pageNumber + 1) + '">next &gt;</a>');
+	            var $prevButton = $('<a class="button" href="#/addressbooks/'+addressBookId+'/page' + (pageNumber - 1) + '">&lt; prev</a>');
+	            var $nextButton = $('<a class="button" href="#/addressbooks/'+addressBookId+'/page' + (pageNumber + 1) + '">next &gt;</a>');
 
 	            // var $prevButton = $('<a href="#" class="button">Previous Page</a>');
 	            // var $nextButton = $('<a href="#" class="button">Next Page</a>');
