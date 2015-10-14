@@ -90,7 +90,7 @@
 	// Functions that display things on the screen (views)
 	function displayAddressBooksList(pageNumber) {
 	    pageNumber = +pageNumber || 0;
-	    
+
 	    data.getAddressBooks(pageNumber).then(
 	        function(addressBooks) {
 
@@ -141,11 +141,9 @@
 	}
 
 
-	function displayAddressBook(addressBookId, pageNumber, pageAb) {
-	    pageAb = +pageAb || 0;
+	function displayAddressBook(addressBookId, pageNumber) {
 	    pageNumber = +pageNumber || 0;
 	    
-
 	    data.getEntries(addressBookId, pageNumber).then(
 	        function(entries) {
 
@@ -154,50 +152,70 @@
 	            var $backButton = $('<a href="#" class="button expand">Back to the Address Books list</a>');
 	            $app.append($backButton);
 	            $backButton.on("click", function() {
-	                displayAddressBooksList(pageAb);
+	                displayAddressBooksList();
 	            });
 
 	            $app.append('<h2>Entries List of the Address Book ' + addressBookId + '</h2>');
-	            $app.append('<ul>');
+	            
+	            var EntriesView = new view.EntriesView({
+	                model: entries
+	            });
+	            EntriesView.render();
+	            $app.append(EntriesView.$el);
+	            
+	            
+	            
+	            //$app.append('<ul>');
 
 	            //console.log(entries);
 
-	            entries.forEach(function(e) {
-	                $app.find('ul').append('<li class = "list" data-id="' + e.id + '">' + e.lastName + ' ' + e.firstName + '</li>');
-	            });
+	            // entries.forEach(function(e) {
+	            //     $app.find('ul').append('<li class = "list" data-id="' + e.id + '">' + e.lastName + ' ' + e.firstName + '</li>');
+	            // });
 
-	            $app.find('li').on('click', function() {
-	                var entryId = $(this).data('id');
-	                displayEntry(entryId);
-	            });
+	            // $app.find('li').on('click', function() {
+	            //     var entryId = $(this).data('id');
+	            //     displayEntry(entryId);
+	            // });
 
 	            if (entries.length === 0) {
 	                $app.append("<div>No more entries, please return to the previous page.</div>");
 	            }
 
-	            var $prevButton = $('<a href="#" class="button">Previous Page</a>');
-	            var $nextButton = $('<a href="#" class="button">Next Page</a>');
+	            var $prevButton = $('<a class="button" href="#/addressbooks/addressBookId/page' + (pageNumber - 1) + '">&lt; prev</a>');
+	            var $nextButton = $('<a class="button" href="#/addressbooks/addressBookId/page' + (pageNumber + 1) + '">next &gt;</a>');
+
+	            // var $prevButton = $('<a href="#" class="button">Previous Page</a>');
+	            // var $nextButton = $('<a href="#" class="button">Next Page</a>');
 
 	            $app.append($prevButton);
 	            $app.append($nextButton);
 
-	            if (pageNumber > 0) {
-	                $prevButton.on("click", function() {
-	                    displayAddressBook(addressBookId, pageNumber - 1);
-	                });
-	            }
-	            else {
+	            if (pageNumber === 0) {
 	                $prevButton.toggleClass("disabled");
 	            }
 
-	            if (entries.length === 5) {
-	                $nextButton.on("click", function() {
-	                    displayAddressBook(addressBookId, pageNumber + 1);
-	                });
-	            }
-	            else {
+	            if (entries.length < 5) {
 	                $nextButton.toggleClass("disabled");
 	            }
+
+	            // if (pageNumber > 0) {
+	            //     $prevButton.on("click", function() {
+	            //         displayAddressBook(addressBookId, pageNumber - 1);
+	            //     });
+	            // }
+	            // else {
+	            //     $prevButton.toggleClass("disabled");
+	            // }
+
+	            // if (entries.length === 5) {
+	            //     $nextButton.on("click", function() {
+	            //         displayAddressBook(addressBookId, pageNumber + 1);
+	            //     });
+	            // }
+	            // else {
+	            //     $nextButton.toggleClass("disabled");
+	            // }
 
 	        }
 	    )
@@ -253,19 +271,15 @@
 
 
 	// Data retrieval functions
-
-	// Backbone model for an addressbook
 	var AddressBookModel = Backbone.Model.extend({
-	    urlRoot: API_URL + '/AddressBooks'
+	    
 	});
 
+	// Backbone collection of addressbooks
 	var AddressBookCollection = Backbone.Collection.extend({
 	    model: AddressBookModel,
-	    url: function() {
-	        return API_URL + '/AddressBooks/';
-	    }
+	    url: API_URL + '/AddressBooks/'
 	});
-
 
 	function getAddressBooks(pageNumber) {
 	    var skipNb = pageNumber * 5;
@@ -273,7 +287,7 @@
 	    // return $.getJSON(API_URL + '/AddressBooks' + filter);
 	    
 	    var filter = {"order": "name ASC", "limit": 5, "skip": skipNb};
-	    
+
 	    var addressBooklist = new AddressBookCollection();
 	    return addressBooklist.fetch({data: {filter: JSON.stringify(filter)}}).then(
 	        function() {
@@ -282,16 +296,36 @@
 	    );
 	}
 
-	function getAddressBookEntries(id) {
-	    return $.getJSON(API_URL + '/AddressBooks/' + id);
-	}
 
 
+	//Backbone collection of addressbooks
+	var Entry = Backbone.Model.extend({
+
+	});
+
+	var EntriesCollection = Backbone.Collection.extend({
+	    model: Entry,
+	    initialize: function(models, options) {
+	        this.addressBookId = options.addressBookId;
+	    },
+	    url: function(){return API_URL + '/AddressBooks/' + this.addressBookId + '/entries';}
+	});
+
+	// function getAddressBookEntries(id) {
+	//     return $.getJSON(API_URL + '/AddressBooks/' + id);
+	// }
 
 	function getEntries(addressBookId, pageNumber) {
 	    var skipNb = pageNumber * 5;
-	    var filter = '?filter={"order": "lastName ASC", "limit": 5, "skip": ' + skipNb + '}';
-	    return $.getJSON(API_URL + '/AddressBooks/' + addressBookId + '/entries' + filter);
+	    var filter = {order: "lastName ASC", limit: 5, skip: skipNb};
+	    var entriesList = new EntriesCollection(null,{addressBookId:addressBookId});
+	    
+	    return entriesList.fetch({data:{filter:JSON.stringify(filter)}}).then(
+	        function() {
+	            return entriesList;
+	        }
+	    );
+	    // return $.getJSON(API_URL + '/AddressBooks/' + addressBookId + '/entries' + filter);
 	}
 
 
@@ -333,7 +367,7 @@
 
 	module.exports = {
 	    getAddressBooks: getAddressBooks,
-	    getAddressBookEntries: getAddressBookEntries,
+	    //getAddressBookEntries: getAddressBookEntries,
 	    getEntries: getEntries,
 	    getEntry: getEntry,
 	};
@@ -13020,6 +13054,7 @@
 	// var entryTemplateText = $('#entry-template').html();
 
 	var abListTemplateText = __webpack_require__(7);
+	var entriestemplateText = __webpack_require__(8);
 
 	var AddressBookListView = Backbone.View.extend({
 	    template: _.template( abListTemplateText ),
@@ -13027,6 +13062,16 @@
 	    tagName: 'div',
 	    render: function() {
 	        this.$el.html( this.template({abList: this.model}) );
+	    }
+	});
+
+
+	var EntriesView = Backbone.View.extend({
+	    template: _.template( entriestemplateText ),
+	    model: null,
+	    tagName: 'div',
+	    render: function() {
+	        this.$el.html( this.template({entriesList: this.model}) );
 	    }
 	});
 
@@ -13058,14 +13103,21 @@
 
 	module.exports = {
 	    // EntryView:EntryView,
-	    AddressBookListView:AddressBookListView
+	    AddressBookListView:AddressBookListView,
+	    EntriesView:EntriesView
 	}
 
 /***/ },
 /* 7 */
 /***/ function(module, exports) {
 
-	module.exports = "<ul>\n      <% abList.forEach(function(ab) { %>\n            <li><a href=\"#/addressbooks/<%=ab.get('id')%>\"><%= ab.get('name')%></a></li>\n      <% }) %>\n</ul>"
+	module.exports = "<ul>\n      <% abList.forEach(function(ab) { console.log(ab);%>\n            <li><a href=\"#/addressbooks/<%=ab.get('id')%>\"><%= ab.get('name')%></a></li>\n      <% }) %>\n</ul>"
+
+/***/ },
+/* 8 */
+/***/ function(module, exports) {
+
+	module.exports = "<ul>\n      <% entriesList.forEach(function(e) { console.log(e) %>\n            <li><a href=\"#entry/<%=e.get('id')%>\"><%= e.get('lastName')%> <%=e.get('firstName')%></a></li>\n      <% }) %>\n</ul>"
 
 /***/ }
 /******/ ]);

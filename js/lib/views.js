@@ -5,6 +5,7 @@ var _ = require('underscore');
 // var entryTemplateText = $('#entry-template').html();
 
 var abListTemplateText = require('raw!./templates/addressbooklist-view-template.ejs');
+var entriestemplateText = require('raw!./templates/entries-view-template.ejs');
 
 var AddressBookListView = Backbone.View.extend({
     template: _.template( abListTemplateText ),
@@ -12,6 +13,16 @@ var AddressBookListView = Backbone.View.extend({
     tagName: 'div',
     render: function() {
         this.$el.html( this.template({abList: this.model}) );
+    }
+});
+
+
+var EntriesView = Backbone.View.extend({
+    template: _.template( entriestemplateText ),
+    model: null,
+    tagName: 'div',
+    render: function() {
+        this.$el.html( this.template({entriesList: this.model}) );
     }
 });
 
@@ -43,5 +54,6 @@ var AddressBookListView = Backbone.View.extend({
 
 module.exports = {
     // EntryView:EntryView,
-    AddressBookListView:AddressBookListView
+    AddressBookListView:AddressBookListView,
+    EntriesView:EntriesView
 }

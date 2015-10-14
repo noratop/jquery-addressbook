@@ -6,19 +6,15 @@ var Backbone = require('backbone');
 
 
 // Data retrieval functions
-
-// Backbone model for an addressbook
 var AddressBookModel = Backbone.Model.extend({
-    urlRoot: API_URL + '/AddressBooks'
+    
 });
 
+// Backbone collection of addressbooks
 var AddressBookCollection = Backbone.Collection.extend({
     model: AddressBookModel,
-    url: function() {
-        return API_URL + '/AddressBooks/';
-    }
+    url: API_URL + '/AddressBooks/'
 });
-
 
 function getAddressBooks(pageNumber) {
     var skipNb = pageNumber * 5;
@@ -26,7 +22,7 @@ function getAddressBooks(pageNumber) {
     // return $.getJSON(API_URL + '/AddressBooks' + filter);
     
     var filter = {"order": "name ASC", "limit": 5, "skip": skipNb};
-    
+
     var addressBooklist = new AddressBookCollection();
     return addressBooklist.fetch({data: {filter: JSON.stringify(filter)}}).then(
         function() {
@@ -35,16 +31,36 @@ function getAddressBooks(pageNumber) {
     );
 }
 
-function getAddressBookEntries(id) {
-    return $.getJSON(API_URL + '/AddressBooks/' + id);
-}
 
 
+//Backbone collection of addressbooks
+var Entry = Backbone.Model.extend({
+
+});
+
+var EntriesCollection = Backbone.Collection.extend({
+    model: Entry,
+    initialize: function(models, options) {
+        this.addressBookId = options.addressBookId;
+    },
+    url: function(){return API_URL + '/AddressBooks/' + this.addressBookId + '/entries';}
+});
+
+// function getAddressBookEntries(id) {
+//     return $.getJSON(API_URL + '/AddressBooks/' + id);
+// }
 
 function getEntries(addressBookId, pageNumber) {
     var skipNb = pageNumber * 5;
-    var filter = '?filter={"order": "lastName ASC", "limit": 5, "skip": ' + skipNb + '}';
-    return $.getJSON(API_URL + '/AddressBooks/' + addressBookId + '/entries' + filter);
+    var filter = {order: "lastName ASC", limit: 5, skip: skipNb};
+    var entriesList = new EntriesCollection(null,{addressBookId:addressBookId});
+    
+    return entriesList.fetch({data:{filter:JSON.stringify(filter)}}).then(
+        function() {
+            return entriesList;
+        }
+    );
+    // return $.getJSON(API_URL + '/AddressBooks/' + addressBookId + '/entries' + filter);
 }
 
 
@@ -86,7 +102,7 @@ function getEntry(entryId) {
 
 module.exports = {
     getAddressBooks: getAddressBooks,
-    getAddressBookEntries: getAddressBookEntries,
+    //getAddressBookEntries: getAddressBookEntries,
     getEntries: getEntries,
     getEntry: getEntry,
 };

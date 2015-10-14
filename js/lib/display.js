@@ -15,7 +15,7 @@ function redirectToAddressBooks() {
 // Functions that display things on the screen (views)
 function displayAddressBooksList(pageNumber) {
     pageNumber = +pageNumber || 0;
-    
+
     data.getAddressBooks(pageNumber).then(
         function(addressBooks) {
 
@@ -66,11 +66,9 @@ function displayAddressBooksList(pageNumber) {
 }
 
 
-function displayAddressBook(addressBookId, pageNumber, pageAb) {
-    pageAb = +pageAb || 0;
+function displayAddressBook(addressBookId, pageNumber) {
     pageNumber = +pageNumber || 0;
     
-
     data.getEntries(addressBookId, pageNumber).then(
         function(entries) {
 
@@ -79,50 +77,70 @@ function displayAddressBook(addressBookId, pageNumber, pageAb) {
             var $backButton = $('<a href="#" class="button expand">Back to the Address Books list</a>');
             $app.append($backButton);
             $backButton.on("click", function() {
-                displayAddressBooksList(pageAb);
+                displayAddressBooksList();
             });
 
             $app.append('<h2>Entries List of the Address Book ' + addressBookId + '</h2>');
-            $app.append('<ul>');
+            
+            var EntriesView = new view.EntriesView({
+                model: entries
+            });
+            EntriesView.render();
+            $app.append(EntriesView.$el);
+            
+            
+            
+            //$app.append('<ul>');
 
             //console.log(entries);
 
-            entries.forEach(function(e) {
-                $app.find('ul').append('<li class = "list" data-id="' + e.id + '">' + e.lastName + ' ' + e.firstName + '</li>');
-            });
+            // entries.forEach(function(e) {
+            //     $app.find('ul').append('<li class = "list" data-id="' + e.id + '">' + e.lastName + ' ' + e.firstName + '</li>');
+            // });
 
-            $app.find('li').on('click', function() {
-                var entryId = $(this).data('id');
-                displayEntry(entryId);
-            });
+            // $app.find('li').on('click', function() {
+            //     var entryId = $(this).data('id');
+            //     displayEntry(entryId);
+            // });
 
             if (entries.length === 0) {
                 $app.append("<div>No more entries, please return to the previous page.</div>");
             }
 
-            var $prevButton = $('<a href="#" class="button">Previous Page</a>');
-            var $nextButton = $('<a href="#" class="button">Next Page</a>');
+            var $prevButton = $('<a class="button" href="#/addressbooks/addressBookId/page' + (pageNumber - 1) + '">&lt; prev</a>');
+            var $nextButton = $('<a class="button" href="#/addressbooks/addressBookId/page' + (pageNumber + 1) + '">next &gt;</a>');
+
+            // var $prevButton = $('<a href="#" class="button">Previous Page</a>');
+            // var $nextButton = $('<a href="#" class="button">Next Page</a>');
 
             $app.append($prevButton);
             $app.append($nextButton);
 
-            if (pageNumber > 0) {
-                $prevButton.on("click", function() {
-                    displayAddressBook(addressBookId, pageNumber - 1);
-                });
-            }
-            else {
+            if (pageNumber === 0) {
                 $prevButton.toggleClass("disabled");
             }
 
-            if (entries.length === 5) {
-                $nextButton.on("click", function() {
-                    displayAddressBook(addressBookId, pageNumber + 1);
-                });
-            }
-            else {
+            if (entries.length < 5) {
                 $nextButton.toggleClass("disabled");
             }
+
+            // if (pageNumber > 0) {
+            //     $prevButton.on("click", function() {
+            //         displayAddressBook(addressBookId, pageNumber - 1);
+            //     });
+            // }
+            // else {
+            //     $prevButton.toggleClass("disabled");
+            // }
+
+            // if (entries.length === 5) {
+            //     $nextButton.on("click", function() {
+            //         displayAddressBook(addressBookId, pageNumber + 1);
+            //     });
+            // }
+            // else {
+            //     $nextButton.toggleClass("disabled");
+            // }
 
         }
     )

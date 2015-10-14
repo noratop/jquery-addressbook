@@ -1,0 +1,5 @@
+<ul>
+      <% entriesList.forEach(function(e) { console.log(e) %>
+            <li><a href="#entry/<%=e.get('id')%>"><%= e.get('lastName')%> <%=e.get('firstName')%></a></li>
+      <% }) %>
+</ul>
