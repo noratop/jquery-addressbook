@@ -13369,7 +13369,8 @@
 
 	// Import data get functions
 	var data = __webpack_require__(5);
-	var view = __webpack_require__(6)
+	var router = __webpack_require__(6);
+	var view = __webpack_require__(7)
 
 	// Get a reference to the <div id="app">. This is where we will output our stuff
 	var $app = $('#app');
@@ -13385,33 +13386,43 @@
 	function displayAddressBooksList(pageNumber) {
 	    pageNumber = +pageNumber || 0;
 
-	    data.getAddressBooks(pageNumber).then(
+	    router.getAddressBooks(pageNumber).then(
 	        function(addressBooks) {
 
 	            $app.html(''); // Clear the #app div
 	            $app.append('<h2>Address Books List</h2>');
-	            
-	            
+
+	            var add = $('<h3 class="add">Add a AddressBook</h3>');
+	            add.on('click', function() {
+
+	                var newAb = new data.AddressBook();
+
+	                var form = new view.editForm({model:newAb, collection: addressBooks});
+	                form.render();
+	                var $overlay = form.$el;
+
+	                $app.append($overlay);
+	                $overlay.fadeIn(100);
+
+	                $overlay.find("input").focus();
+	                //$(".overlay input").on("click", function(){
+	                //    this.select();
+	                //});
+
+	                $overlay.on('click', function(evt) {
+	                    if (evt.target === evt.currentTarget) {
+	                        $overlay.fadeOut(100);
+	                    }
+	                });
+	            });
+	            $app.append(add);
+
+
 	            var addressBookListView = new view.AddressBookListView({
-	                model: addressBooks
+	                collection: addressBooks
 	            });
 	            addressBookListView.render();
 	            $app.append(addressBookListView.$el);
-
-	            
-	            
-	            
-	            // $app.append('<ul>');
-
-	            // addressBooks.forEach(function(ab) {
-	            //     $app.find('ul').append('<li><a href="#/addressbooks/' + ab.get("id") + '">' +ab.get("name") + '</a></li>');
-	            // });
-
-	            // // $app.find('li').on('click', function() {
-	            // //     var addressBookId = $(this).data('id');
-	            // //     console.log(addressBookId);
-	            // //     displayAddressBook(addressBookId, 0, pageNumber);
-	            // // });
 
 	            if (addressBooks.length === 0) {
 	                $app.append("<div>No more addressbooks, please return to the previous page.</div>");
@@ -13437,8 +13448,8 @@
 
 	function displayAddressBook(addressBookId, pageNumber) {
 	    pageNumber = +pageNumber || 0;
-	    
-	    data.getEntries(addressBookId, pageNumber).then(
+
+	    router.getEntries(addressBookId, pageNumber).then(
 	        function(entries) {
 
 	            $app.html(''); // Clear the #app div
@@ -13516,7 +13527,7 @@
 	}
 
 	function displayEntry(entryId) {
-	    data.getEntry(entryId).then(
+	    router.getEntry(entryId).then(
 	        function(entry) {
 	            
 	            $app.html(''); // Clear the #app div
@@ -13565,32 +13576,61 @@
 /* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
-	// Set the API base url
 	var API_URL = "https://loopback-addressbook.herokuapp.com/api";
-
-	// Import Backbone
 	var Backbone = __webpack_require__(1);
 
 
-	// Data retrieval functions
-	var AddressBookModel = Backbone.Model.extend({
-	    
+	//Models
+	var AddressBook = Backbone.Model.extend({
+	    url: API_URL + '/AddressBooks/'
 	});
-
-	// Backbone collection of addressbooks
 	var AddressBookCollection = Backbone.Collection.extend({
-	    model: AddressBookModel,
+	    model: AddressBook,
 	    url: API_URL + '/AddressBooks/'
 	});
 
+
+
+	var Entry = Backbone.Model.extend({
+	    urlRoot: API_URL + '/Entries',
+	    getFullName: function() {
+	        return this.get('firstName') + ' ' + this.get('lastName');
+	    }
+	});
+
+	Entry.includeFilter = JSON.stringify({
+	    include: ['addresses','emails','phones']
+	});
+
+	var EntryCollection = Backbone.Collection.extend({
+	    model: Entry,
+	    initialize: function(models, options) {
+	        this.addressBookId = options.addressBookId;
+	    },
+	    url: function(){return API_URL + '/AddressBooks/' + this.addressBookId + '/entries';}
+	});
+
+
+
+	module.exports ={
+	    AddressBook:AddressBook,
+	    AddressBookCollection:AddressBookCollection,
+	    Entry:Entry,
+	    EntryCollection:EntryCollection
+	}
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var model = __webpack_require__(5);
+
 	function getAddressBooks(pageNumber) {
 	    var skipNb = pageNumber * 5;
-	    // var filter = '?filter={"order": "name ASC", "limit": 5, "skip": ' + skipNb + '}';
-	    // return $.getJSON(API_URL + '/AddressBooks' + filter);
-	    
+
 	    var filter = {"order": "name ASC", "limit": 5, "skip": skipNb};
 
-	    var addressBooklist = new AddressBookCollection();
+	    var addressBooklist = new model.AddressBookCollection();
 	    return addressBooklist.fetch({data: {filter: JSON.stringify(filter)}}).then(
 	        function() {
 	            return addressBooklist;
@@ -13600,64 +13640,36 @@
 
 
 
-	//Backbone collection of addressbooks
-	var Entry = Backbone.Model.extend({
-
-	});
-
-	var EntriesCollection = Backbone.Collection.extend({
-	    model: Entry,
-	    initialize: function(models, options) {
-	        this.addressBookId = options.addressBookId;
-	    },
-	    url: function(){return API_URL + '/AddressBooks/' + this.addressBookId + '/entries';}
-	});
-
-	// function getAddressBookEntries(id) {
-	//     return $.getJSON(API_URL + '/AddressBooks/' + id);
-	// }
-
 	function getEntries(addressBookId, pageNumber) {
 	    var skipNb = pageNumber * 5;
 	    var filter = {order: "lastName ASC", limit: 5, skip: skipNb};
-	    var entriesList = new EntriesCollection(null,{addressBookId:addressBookId});
-	    
+	    var entriesList = new model.EntryCollection(null,{addressBookId:addressBookId});
+
 	    return entriesList.fetch({data:{filter:JSON.stringify(filter)}}).then(
 	        function() {
 	            return entriesList;
 	        }
 	    );
-	    // return $.getJSON(API_URL + '/AddressBooks/' + addressBookId + '/entries' + filter);
 	}
 
 
-	// Backbone model for an entry
-	var EntryModel = Backbone.Model.extend({
-	    urlRoot: API_URL + '/Entries',
-	    getFullName: function() {
-	        return this.get('firstName') + ' ' + this.get('lastName');
-	    }
-	});
 
-	EntryModel.includeFilter = JSON.stringify({
-	    include: ['addresses','emails','phones']
-	});
 
 	function getEntry(entryId) {
-	    
-	    var entry = new EntryModel({id: entryId});
-	    return entry.fetch({data: {filter: EntryModel.includeFilter}}).then(
+
+	    var entry = new model.Entry({id: entryId});
+	    return entry.fetch({data: {filter: Entry.includeFilter}}).then(
 	        function() {
 	            return entry;
 	        }
 	    );
-	    
-	    // var filter = '?filter={"include":["addresses","phones","emails"]}';
-	    // return $.getJSON(API_URL + '/Entries/' + entryId + filter);
 	}
 
 
-
+	function addAddressBook(name){
+	    var newAB = new model.AddressBook({name:name});
+	    return newAB.save();
+	}
 
 
 
@@ -13669,30 +13681,31 @@
 
 	module.exports = {
 	    getAddressBooks: getAddressBooks,
-	    //getAddressBookEntries: getAddressBookEntries,
 	    getEntries: getEntries,
 	    getEntry: getEntry,
+	    addAddressBook:addAddressBook
 	};
 
 /***/ },
-/* 6 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Backbone = __webpack_require__(1);
 	var _ = __webpack_require__(2);
 
-	var entryTemplateText = __webpack_require__(7);
-	// var entryTemplateText = $('#entry-template').html();
-
 	var abListTemplateText = __webpack_require__(8);
 	var entriestemplateText = __webpack_require__(9);
 
 	var AddressBookListView = Backbone.View.extend({
+	    initialize: function(){
+	        this.render();
+	        this.listenTo( this.collection, 'add', this.render );
+	    },
 	    template: _.template( abListTemplateText ),
-	    model: null,
+	    collection: null,
 	    tagName: 'div',
 	    render: function() {
-	        this.$el.html( this.template({abList: this.model}) );
+	        this.$el.html( this.template({abList: this.collection}) );
 	    }
 	});
 
@@ -13707,6 +13720,7 @@
 	});
 
 
+	var entryTemplateText = __webpack_require__(10);
 	var EntryView = Backbone.View.extend({
 	    template: _.template( entryTemplateText ),
 	    model: null,
@@ -13747,17 +13761,78 @@
 	});
 
 
+
+	var form = __webpack_require__(11);
+
+	var editForm = Backbone.View.extend({
+	    template: _.template( form ),
+	    collection:null,
+	    model: null,
+	    tagName: 'div',
+	    className: 'overlay',
+	    events: {
+	        'click .fi-pencil': 'editSomething',
+	        'keydown .input': 'add',
+	    },
+	    editSomething: function(evt) {
+	        var $this = $(evt.target).parent();
+	        var origText = $this.text();
+	        var attribut = $this.attr("name");
+	        $this.replaceWith('<input class="edit-input" name='+attribut+' type="text" value="' + origText + '">');
+	    },
+	    add: function(evt) {
+
+	        var $this = $(evt.target);
+	        var attribut = $this.attr("name");
+	        var inputValue = $this.val();
+
+	        if (evt.keyCode === 13) {
+
+	            var abColl = this.collection;
+
+	            this.model.set(attribut, inputValue);
+
+	            this.model.save().then(
+	                function(successResult) {
+	                    console.log('model has been saved');
+	                    console.log(successResult);
+	                    //view.render();
+	                    abColl.add(successResult);
+	                    console.log(abColl);
+	                },
+	                function(errorResult) {
+	                    console.log("error");
+	                    console.log(errorResult);
+	                    //evt.preventDefault();
+	                }
+	            );
+	            //}
+	            //this.model.save(null, {attrs: this.model.changedAttributes()}).then(
+	            //    function(successResult) {
+	            //        console.log('model has been saved');
+	            //        console.log(successResult);
+	            //        //view.render();
+	            //        this.collection.add(this.model);
+	            //    },
+	            //    function(errorResult) {
+	            //        console.log(errorResult);
+	            //        evt.preventDefault();
+	            //    }
+	            //);
+	        }
+	    },
+	    render: function() {
+	        this.$el.html( this.template({ab: this.model}) );
+	    }
+	});
+
+
 	module.exports = {
 	    EntryView:EntryView,
 	    AddressBookListView:AddressBookListView,
-	    EntriesView:EntriesView
+	    EntriesView:EntriesView,
+	    editForm:editForm
 	}
-
-/***/ },
-/* 7 */
-/***/ function(module, exports) {
-
-	module.exports = "<table>\n    <tr><th>First Name</th><td><div class=\"editable\" name=\"firstName\"><%=entry.get('firstName') %><i class=\"fi-pencil\"></i></div></td></tr>\n    <tr><th>Last Name</th><td><div class=\"editable\"><%=entry.get('lastName') %></div></td></tr>\n    <tr><th>Full Name</th><td><%=entry.getFullName()%></td></tr>\n    <% if (typeof entry.get('birthday') !== \"undefined\") { %>\n      <tr><th>Birthday</th><td><%=entry.get('birthday') %></td></tr>\n    <% } %>\n    <% for (var i = 0; i < entry.get('emails').length; i++) { %>\n      <tr><th>Email # <%=i+1 %></th><td><%= entry.get('emails')[i].email %> (<%= entry.get('emails')[i].type %>)</td></tr>\n    <% } %>\n</table>"
 
 /***/ },
 /* 8 */
@@ -13770,6 +13845,18 @@
 /***/ function(module, exports) {
 
 	module.exports = "<ul>\n      <% entriesList.forEach(function(e) { %>\n            <li><a href=\"#entry/<%=e.get('id')%>\"><%= e.get('lastName')%> <%=e.get('firstName')%></a></li>\n      <% }) %>\n</ul>"
+
+/***/ },
+/* 10 */
+/***/ function(module, exports) {
+
+	module.exports = "<table>\n    <tr><th>First Name</th><td><div class=\"editable\" name=\"firstName\"><%=entry.get('firstName') %><i class=\"fi-pencil\"></i></div></td></tr>\n    <tr><th>Last Name</th><td><div class=\"editable\"><%=entry.get('lastName') %></div></td></tr>\n    <tr><th>Full Name</th><td><%=entry.getFullName()%></td></tr>\n    <% if (typeof entry.get('birthday') !== \"undefined\") { %>\n      <tr><th>Birthday</th><td><%=entry.get('birthday') %></td></tr>\n    <% } %>\n    <% for (var i = 0; i < entry.get('emails').length; i++) { %>\n      <tr><th>Email # <%=i+1 %></th><td><%= entry.get('emails')[i].email %> (<%= entry.get('emails')[i].type %>)</td></tr>\n    <% } %>\n</table>"
+
+/***/ },
+/* 11 */
+/***/ function(module, exports) {
+
+	module.exports = "<div>\n    <label for=\"name\">Name:</label>\n    <input class=\"input\" type=\"text\" name=\"name\" value=\"<%=ab.get('name') || '' %>\"/>\n</div>"
 
 /***/ }
 /******/ ]);

@@ -107,3 +107,11 @@ body{
     
 
 }
+
+
+.overlay {  position: fixed; top: 0; left: 0; width:100vw; height: 100vh; display: flex; background-color: rgba(0, 0, 0, 0.75); align-items: center;
+    justify-content: center; flex-direction: column; cursor: pointer;
+    //*     { cursor: default; }
+    //input { font-family: $raleway; font-weight: bold; font-size: 1.2em; padding:1em; width:50vw; }
+    //p {font-family: $raleway; font-weight: bold; font-size: 1.2em; padding:1em; color:white;}
+}

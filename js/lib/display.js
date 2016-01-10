@@ -1,5 +1,6 @@
 // Import data get functions
-var data = require("./data");
+var data = require("./model");
+var router = require('./router');
 var view = require("./views")
 
 // Get a reference to the <div id="app">. This is where we will output our stuff
@@ -16,33 +17,43 @@ function redirectToAddressBooks() {
 function displayAddressBooksList(pageNumber) {
     pageNumber = +pageNumber || 0;
 
-    data.getAddressBooks(pageNumber).then(
+    router.getAddressBooks(pageNumber).then(
         function(addressBooks) {
 
             $app.html(''); // Clear the #app div
             $app.append('<h2>Address Books List</h2>');
-            
-            
+
+            var add = $('<h3 class="add">Add a AddressBook</h3>');
+            add.on('click', function() {
+
+                var newAb = new data.AddressBook();
+
+                var form = new view.editForm({model:newAb, collection: addressBooks});
+                form.render();
+                var $overlay = form.$el;
+
+                $app.append($overlay);
+                $overlay.fadeIn(100);
+
+                $overlay.find("input").focus();
+                //$(".overlay input").on("click", function(){
+                //    this.select();
+                //});
+
+                $overlay.on('click', function(evt) {
+                    if (evt.target === evt.currentTarget) {
+                        $overlay.fadeOut(100);
+                    }
+                });
+            });
+            $app.append(add);
+
+
             var addressBookListView = new view.AddressBookListView({
-                model: addressBooks
+                collection: addressBooks
             });
             addressBookListView.render();
             $app.append(addressBookListView.$el);
-
-            
-            
-            
-            // $app.append('<ul>');
-
-            // addressBooks.forEach(function(ab) {
-            //     $app.find('ul').append('<li><a href="#/addressbooks/' + ab.get("id") + '">' +ab.get("name") + '</a></li>');
-            // });
-
-            // // $app.find('li').on('click', function() {
-            // //     var addressBookId = $(this).data('id');
-            // //     console.log(addressBookId);
-            // //     displayAddressBook(addressBookId, 0, pageNumber);
-            // // });
 
             if (addressBooks.length === 0) {
                 $app.append("<div>No more addressbooks, please return to the previous page.</div>");
@@ -68,8 +79,8 @@ function displayAddressBooksList(pageNumber) {
 
 function displayAddressBook(addressBookId, pageNumber) {
     pageNumber = +pageNumber || 0;
-    
-    data.getEntries(addressBookId, pageNumber).then(
+
+    router.getEntries(addressBookId, pageNumber).then(
         function(entries) {
 
             $app.html(''); // Clear the #app div
@@ -147,7 +158,7 @@ function displayAddressBook(addressBookId, pageNumber) {
 }
 
 function displayEntry(entryId) {
-    data.getEntry(entryId).then(
+    router.getEntry(entryId).then(
         function(entry) {
             
             $app.html(''); // Clear the #app div
