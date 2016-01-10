@@ -1,8 +1,9 @@
-var $ = require("jquery");
+//var $ = require("jquery");
+$(document).foundation();
+
 var Backbone = require('backbone');
 
 // Add foundation dynamic functionality on page
-$(document).foundation();
 
 // Import display
 var display = require("./lib/display");

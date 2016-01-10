@@ -1,5 +1,5 @@
 // Set the API base url
-var API_URL = "https://loopback-rest-api-demo-ziad-saab.c9.io/api";
+var API_URL = "https://loopback-addressbook.herokuapp.com/api";
 
 // Import Backbone
 var Backbone = require('backbone');
