@@ -1,10 +1,11 @@
+var $ = require("jquery");
+var Backbone = require('backbone');
+
 // Add foundation dynamic functionality on page
 $(document).foundation();
 
 // Import display
 var display = require("./lib/display");
-
-var Backbone = require('backbone');
 
 var AppRouter = Backbone.Router.extend({
     routes: {
